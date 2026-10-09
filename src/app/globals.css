@@ -1,26 +1,287 @@
 @import "tailwindcss";
 
+/* Modo oscuro por clase (lo activa next-themes poniendo .dark en <html>). */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* =====================================================================
+   DISEÑO "HUD DE INGENIERÍA" — tokens de color por tema
+   Todos los componentes usan estos tokens (bg-bg, text-fg, border-line,
+   text-accent…). Cambiar el look = tocar estas variables.
+   ===================================================================== */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Tema claro: "plano técnico" azulado */
+  --hud-bg: #eef3f8;
+  --hud-bg-2: #e3eaf3;
+  --hud-panel: rgba(255, 255, 255, 0.72);
+  --hud-panel-2: rgba(255, 255, 255, 0.92);
+  --hud-line: rgba(8, 112, 164, 0.22);
+  --hud-line-strong: rgba(8, 112, 164, 0.45);
+  --hud-fg: #0b1a2b;
+  --hud-muted: #4b6478;
+  --hud-faint: #8ea3b6;
+  --hud-accent: #0891b2;
+  --hud-accent-hover: #0e7490;
+  --hud-on-accent: #ffffff;
+  --hud-glow: rgba(8, 145, 178, 0.28);
+  --hud-grid: rgba(8, 112, 164, 0.07);
+  --hud-grid-major: rgba(8, 112, 164, 0.13);
+  --hud-scan: transparent;
 }
 
+.dark {
+  /* Tema oscuro: consola tipo J.A.R.V.I.S. */
+  --hud-bg: #04070d;
+  --hud-bg-2: #070d18;
+  --hud-panel: rgba(9, 17, 31, 0.66);
+  --hud-panel-2: rgba(12, 22, 40, 0.9);
+  --hud-line: rgba(56, 189, 248, 0.18);
+  --hud-line-strong: rgba(56, 189, 248, 0.4);
+  --hud-fg: #d9e6f2;
+  --hud-muted: #7d97ae;
+  --hud-faint: #4a6178;
+  --hud-accent: #22d3ee;
+  --hud-accent-hover: #67e8f9;
+  --hud-on-accent: #04111a;
+  --hud-glow: rgba(34, 211, 238, 0.35);
+  --hud-grid: rgba(34, 211, 238, 0.06);
+  --hud-grid-major: rgba(34, 211, 238, 0.12);
+  --hud-scan: rgba(0, 0, 0, 0.16);
+}
+
+/* Tokens de Tailwind (inline → las utilidades apuntan a las variables y
+   cambian de tema en tiempo real sin necesitar dark:) */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-mono-jb), ui-monospace, monospace;
+  --font-display: var(--font-display-cp), var(--font-inter), sans-serif;
+
+  --color-bg: var(--hud-bg);
+  --color-bg-2: var(--hud-bg-2);
+  --color-panel: var(--hud-panel);
+  --color-panel-2: var(--hud-panel-2);
+  --color-line: var(--hud-line);
+  --color-line-strong: var(--hud-line-strong);
+  --color-fg: var(--hud-fg);
+  --color-muted: var(--hud-muted);
+  --color-faint: var(--hud-faint);
+  --color-accent: var(--hud-accent);
+  --color-accent-hover: var(--hud-accent-hover);
+  --color-on-accent: var(--hud-on-accent);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
+}
+
+@layer base {
+  body {
+    background-color: var(--hud-bg);
+    color: var(--hud-fg);
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  ::selection {
+    background: var(--hud-accent);
+    color: var(--hud-on-accent);
+  }
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer utilities {
+  /* ---------- Reveal (igual que antes) ---------- */
+  .reveal {
+    opacity: 0;
+    transform: translateY(16px);
+    transition:
+      opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .reveal[data-revealed="true"] { opacity: 1; transform: none; }
+
+  .stagger > * {
+    opacity: 0;
+    transform: translateY(16px);
+    transition:
+      opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .stagger[data-revealed="true"] > * { opacity: 1; transform: none; }
+  .stagger[data-revealed="true"] > *:nth-child(2) { transition-delay: 70ms; }
+  .stagger[data-revealed="true"] > *:nth-child(3) { transition-delay: 140ms; }
+  .stagger[data-revealed="true"] > *:nth-child(4) { transition-delay: 210ms; }
+  .stagger[data-revealed="true"] > *:nth-child(5) { transition-delay: 280ms; }
+  .stagger[data-revealed="true"] > *:nth-child(6) { transition-delay: 350ms; }
+  .stagger[data-revealed="true"] > *:nth-child(7) { transition-delay: 420ms; }
+  .stagger[data-revealed="true"] > *:nth-child(8) { transition-delay: 490ms; }
+  .stagger[data-revealed="true"] > *:nth-child(9) { transition-delay: 560ms; }
+
+  /* ---------- Fondo HUD global (fijo, detrás de todo) ---------- */
+  .hud-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: -10;
+    pointer-events: none;
+    background-color: var(--hud-bg);
+    background-image:
+      linear-gradient(var(--hud-grid-major) 1px, transparent 1px),
+      linear-gradient(90deg, var(--hud-grid-major) 1px, transparent 1px),
+      linear-gradient(var(--hud-grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--hud-grid) 1px, transparent 1px);
+    background-size: 120px 120px, 120px 120px, 24px 24px, 24px 24px;
+  }
+  .hud-backdrop::before {
+    /* viñeta + halo de acento arriba */
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(60% 45% at 50% 0%, var(--hud-glow), transparent 70%),
+      radial-gradient(120% 90% at 50% 50%, transparent 55%, var(--hud-bg) 100%);
+  }
+  .hud-backdrop::after {
+    /* scanlines suaves (solo en oscuro, en claro la variable es transparente) */
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 3px,
+      var(--hud-scan) 3px,
+      var(--hud-scan) 4px
+    );
+    mix-blend-mode: multiply;
+  }
+
+  /* ---------- Panel HUD: borde fino + esquinas en "L" ---------- */
+  .hud-panel {
+    position: relative;
+    background: var(--hud-panel);
+    border: 1px solid var(--hud-line);
+    border-radius: 4px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+  }
+  .hud-panel::after {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    pointer-events: none;
+    border-radius: inherit;
+    --c: var(--hud-line-strong);
+    --s: 14px;
+    background:
+      linear-gradient(var(--c), var(--c)) top left / var(--s) 1px no-repeat,
+      linear-gradient(var(--c), var(--c)) top left / 1px var(--s) no-repeat,
+      linear-gradient(var(--c), var(--c)) top right / var(--s) 1px no-repeat,
+      linear-gradient(var(--c), var(--c)) top right / 1px var(--s) no-repeat,
+      linear-gradient(var(--c), var(--c)) bottom left / var(--s) 1px no-repeat,
+      linear-gradient(var(--c), var(--c)) bottom left / 1px var(--s) no-repeat,
+      linear-gradient(var(--c), var(--c)) bottom right / var(--s) 1px no-repeat,
+      linear-gradient(var(--c), var(--c)) bottom right / 1px var(--s) no-repeat;
+    transition: --c 0.3s ease;
+  }
+  .hud-panel-hover:hover {
+    border-color: color-mix(in srgb, var(--hud-accent) 55%, transparent);
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, var(--hud-accent) 12%, transparent),
+      0 12px 40px -18px var(--hud-glow),
+      inset 0 0 40px -30px var(--hud-glow);
+  }
+  .hud-panel-hover:hover::after { --c: var(--hud-accent); }
+  .hud-panel-solid { background: var(--hud-panel-2); }
+
+  /* ---------- Botón con corte diagonal ---------- */
+  .hud-cut {
+    clip-path: polygon(
+      10px 0, 100% 0, 100% calc(100% - 10px),
+      calc(100% - 10px) 100%, 0 100%, 0 10px
+    );
+  }
+  .hud-cut-sm {
+    clip-path: polygon(
+      6px 0, 100% 0, 100% calc(100% - 6px),
+      calc(100% - 6px) 100%, 0 100%, 0 6px
+    );
+  }
+
+  /* ---------- Texto con leve resplandor (titulares de acento) ---------- */
+  .hud-glow-text {
+    text-shadow: 0 0 24px var(--hud-glow);
+  }
+
+  /* ---------- Línea con "ticks" (reglas de sección) ---------- */
+  .hud-rule {
+    height: 1px;
+    background:
+      linear-gradient(90deg, transparent, var(--hud-line-strong) 15%, var(--hud-line-strong) 85%, transparent);
+  }
+
+  /* ---------- Cursor parpadeante del typing ---------- */
+  .cursor-blink { animation: blink 1s step-end infinite; }
+
+  /* ---------- Retícula del Hero: anillos que giran ---------- */
+  .hud-spin      { animation: hudSpin 40s linear infinite; transform-origin: center; }
+  .hud-spin-rev  { animation: hudSpin 26s linear infinite reverse; transform-origin: center; }
+  .hud-spin-slow { animation: hudSpin 70s linear infinite; transform-origin: center; }
+  .hud-pulse     { animation: hudPulse 3s ease-in-out infinite; transform-origin: center; }
+
+  /* ---------- Rejilla de puntos (se conserva para compatibilidad) ---------- */
+  .bg-dot-grid {
+    background-image: radial-gradient(currentColor 1px, transparent 1px);
+    background-size: 22px 22px;
+  }
+}
+
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+@keyframes hudSpin { to { transform: rotate(360deg); } }
+@keyframes hudPulse {
+  0%, 100% { opacity: 0.35; transform: scale(0.98); }
+  50% { opacity: 0.9; transform: scale(1); }
+}
+
+/* =====================================================================
+   Scroll estilo iPhone para Proyectos (.projects-scroll) — sin cambios
+   funcionales, solo color de acento vía token.
+   ===================================================================== */
+.projects-scroll {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+  scrollbar-gutter: stable;
+  transition: scrollbar-color 0.3s ease;
+}
+.projects-scroll:hover,
+.projects-scroll:focus-within {
+  scrollbar-color: color-mix(in srgb, var(--hud-accent) 55%, transparent) transparent;
+}
+.projects-scroll::-webkit-scrollbar { width: 8px; }
+.projects-scroll::-webkit-scrollbar-track { background: transparent; }
+.projects-scroll::-webkit-scrollbar-thumb {
+  background-color: transparent;
+  border-radius: 9999px;
+  transition: background-color 0.3s ease;
+}
+.projects-scroll:hover::-webkit-scrollbar-thumb,
+.projects-scroll:focus-within::-webkit-scrollbar-thumb {
+  background-color: color-mix(in srgb, var(--hud-accent) 55%, transparent);
+}
+.projects-scroll::-webkit-scrollbar-thumb:hover { background-color: var(--hud-accent); }
+
+/* Accesibilidad: sin animación para quien prefiere menos movimiento */
+@media (prefers-reduced-motion: reduce) {
+  html, .projects-scroll { scroll-behavior: auto; }
+  .reveal, .stagger > * {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+  .cursor-blink, .hud-spin, .hud-spin-rev, .hud-spin-slow, .hud-pulse {
+    animation: none;
+  }
 }
